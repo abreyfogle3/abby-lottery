@@ -1,0 +1,80 @@
+---
+title: "index"
+format: html
+---
+
+This project is an assignment in the Reporting with Data class at the University of Texas at Austin. 
+
+The data was retrived from the Texas Open Data Portal (https://data.texas.gov/See-Category-Tile/Winners-List-of-Texas-Lottery-Prizes/54pj-3dxy/about_data) regarding the Winners List of Texas Lottery® Prizes. The data was provided by IT Lottery & Charitable Bingo, Texas Department of Licensing & Regulation. The data begins on November 16th, 1992 and was updated weekly The data was last updated November 4, 2025 before it was pulled. 
+
+## Column Names
+
+REMOVED - Row ID - Unique key
+
+Claim Number - A number assigned by the Claims Process. A claim may contain multiple claim lines.
+
+Amount Won - Amount won for winning play if cash prize. Prize value for 2nd Chance promotion if merchandise prize.
+
+Date Claim Paid - The date the claim was paid.
+
+Player ID - Number assigned by the payment processing system to the claimant, or claim number for anonymous claimant.
+
+REMOVED - Annuity Indicator - Indicator if the claim is an annuity (YES) or cash value option (NO).
+
+Anonymous Indicator - Indicator of player's request to remain anonymous.
+
+Claim Center Location - Name of lottery claim center office that processed the claim.
+
+Claim Type - Indicator if the claim was claimed as an individual or legal entity.
+
+REMOVED - US Citizen Flag - Indicator if claimant is US Citizen (YES/NO) or not provided.
+
+Last Name - The last name of individual claimant or the full entity name if an entity. If anonymity requested, anonymous will be displayed for individuals.
+
+First Name - The first name of the claimant. If anonymity requested, anonymous will be displayed for individuals.
+
+Claimant Name and Player ID - The last name, first name and player id for individuals or the full entity name and player id if an entity. If anonymity requested, anonymous will be displayed along with claim number for individuals.
+
+Claimant City - The city where the claimant resides.
+
+Claimant State - The state where the claimant resides.
+
+Claimant County - The county where the claimant resides.
+
+Claimant Country - The country where the claimant resides.
+
+REMOVED - Prize or Merchandise Indicator - Indicator if claim is prize (money) or merchandise.
+
+REMOVED - Scratch Ticket or Draw Game - The lottery game category of the ticket. Draw Game or Scratch Ticket.
+
+REMOVED - Date of Draw - The date the draw game drawing occurred.
+
+REMOVED - Draw Time of Day - The time of the day the draw occurred: Morning, Day, Evening or Night.
+
+REMOVED - Prize Level - Describes the prize level of the winning play for Draw Games only.
+
+REMOVED - Date Ticket Sold -The date the draw game ticket was sold.
+
+Scratch Ticket Game Number - The game number of the scratch ticket.
+
+Scratch Ticket Cost -The cost per scratch ticket dollar amount.
+
+Retailer Number - The retailer number that sold the ticket.
+
+Retailer Name - The retailer name that sold the ticket.
+
+Retailer Number and Name - The retailer number/name that sold the ticket.
+
+Retailer Address 1 - The address line 1 of the retailer that sold the ticket.
+
+Retailer Address 2 - The address line 2 of the retailer that sold the ticket.
+
+Retailer City - The city of the retailer that sold the ticket.
+
+Retailer State - The state of the retailer that sold the ticket.
+
+Retailer Zip Code - The zip code of the retailer that sold the ticket.
+
+Retailer Zip Code +4 - The zip code+4 of the retailer that sold the ticket.
+
+Retailer County - The county of the retailer that sold the ticket.

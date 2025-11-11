@@ -1,0 +1,88 @@
+---
+title: "Data import and cleaning"
+---
+
+This notebook is a starting point for you in the Special Education project following up the Houston Chronicle's Denied series. This project has the data necessary to complete the Denied Cleaning chapter in [Reporting with Data in R](https://utdata.github.io/rwdir/denied-cleaning.html).
+
+## Setup
+
+Setting up the packages -- tidyverse and janitor.
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(janitor)
+```
+
+## Downloading Data
+
+from: https://data.texas.gov/See-Category-Tile/Winners-List-of-Texas-Lottery-Prizes/54pj-3dxy/about_data
+
+```{r}
+lottery_raw <-read_csv("data-original/Winners_List_of_Texas_Lottery__Prizes.csv") |> clean_names()
+  
+lottery_raw
+```
+
+## What's Included?
+
+Taking a peak at the columns to decide what can be cut.
+
+```{r}
+lottery_raw |> glimpse()
+```
+
+## Removing columns
+
+Getting rid of columns that do not add to the data
+
+```{r}
+lottery_select <- lottery_raw |>
+  select(!c(row_id, date_of_draw, draw_time_of_day, prize_level, date_ticket_sold, annuity_indicator, us_citizen_flag, prize_or_merchandise_indicator, scratch_ticket_or_draw_game)) |>
+  glimpse()
+```
+
+## Fixing the date
+Fixing date_claim_paid to be categorized as a date
+
+```{r}
+lottery_date <- lottery_select |>
+  mutate(
+    claim_date = mdy(date_claim_paid)
+  ) |>
+  arrange(claim_date) |>
+  select(!c(date_claim_paid)) |>
+glimpse()
+```
+
+## Creating a year element
+
+```{r}
+lottery_date |>
+  mutate(
+    yr = year(claim_date)
+  )
+```
+
+## Add net cost column
+Subtracting the amount spent on the ticket from the amount won
+
+```{r}
+lottery_net_cost <- lottery_date |>
+  mutate(
+    net_cost = scratch_ticket_cost - amount_won
+  ) |>
+glimpse()
+```
+
+## Export
+Moving to processed folder
+
+```{r}
+lottery_net_cost |>
+   write_rds("data-processed/01-lottery.rds")
+```
+

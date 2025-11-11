@@ -1,0 +1,22 @@
+---
+title: "02-Analysis"
+format: html
+---
+
+Questions:
+
+- Which location has the most winning tickets sold?
+  - Has that changed over time?
+- Who has won the most lotteries?
+- How many people who have won are from out of state? 
+- How many people have won anonymously? and do more people claim anonymity if they have a larger win?
+- Wins is a very broad distinction. How many low-level wins (10 dollars) vs high-level wins (1,000,000 dollars)?
+- Can we see any trends relating to the courier service controversy?
+
+
+
+
+
+
+
+
