@@ -13,10 +13,144 @@ Questions:
 - Wins is a very broad distinction. How many low-level wins (10 dollars) vs high-level wins (1,000,000 dollars)?
 - Can we see any trends relating to the courier service controversy?
 
+## Setup
+
+Setting up the packages -- tidyverse and janitor.
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(janitor)
+```
 
 
+##Importing clean data
 
+```{r}
+cleaned_lottery <- read_rds("data-processed/01-lottery.rds") |>
 
+glimpse()
+```
+
+## of Winners
+
+```{r}
+cleaned_lottery |>
+  count(player_id, sort = TRUE, name = "wins")
+```
+
+```{r}
+cleaned_lottery |>
+  filter(
+    player_id == "101718882",
+  )
+```
+
+Future Question: This was served as a test to see the breakdown of a single person's data. But after entering a second player id, I came across Howard Skillrud. I noticed his name when I first came across the data. He just has soooo many wins. It's about one a week, but its never anything big. 
+
+## Difference in Wins at different locations
+
+- Which city has the highest amount of money won?
+  Grouping wins by cities with the total amount won in lottery. Largest retailer city shown as NA due to large sums often being reported anonyomously or poor recording keeping. 
+
+```{r}
+location_lottery <- cleaned_lottery |>
+  group_by(retailer_city) |>
+  summarize(total_amount = sum(amount_won)) |>
+  arrange(desc(total_amount))
+
+location_lottery |> head()
+```
+
+- Which retailer has the highest amount of money won?
+    Breaking it down further by showing the biggest wins by retailer. Again, largest retailer city shown as NA due to large sums often being reported anonyomously or poor recording keeping. 
+
+```{r}
+retailer_lottery <- cleaned_lottery |>
+  group_by(retailer_name) |>
+  summarize(total_retailer_amount = sum(amount_won)) |>
+  arrange(desc(total_retailer_amount))
+
+retailer_lottery |> head()
+```
+
+- Which retailer has sold the most winning tickets?
+      Breaking down how it is shown through claim numbers, rather than pure amount won. This allows for large wins to not just be highlighted but shows how often a spot has wins.
+
+```{r}
+retailer_ticket_lottery <- cleaned_lottery |>
+  group_by(retailer_name) |>
+  summarize(claim_number = n()) |>
+  arrange(desc(claim_number))
+
+retailer_ticket_lottery
+```
+
+## Has retailer wins changed over time?
+    The lottery isn't that old of a game. I wanted to explore just how much lotteries wins have increased though the years, especially at certain spots. Many of the high winners over the years correspond with lists of retailer cash incentive programs (https://www.texaslottery.com/export/sites/lottery/Documents/retailers/46Web2_Final.pdf). This program rewards high earning spots with financial rewards. 
+    
+Pivoted the chart longer
+
+```{r}
+lottery_long <- cleaned_lottery |>
+  
+  select(yr, retailer_name, claim_number) |>
+  
+  group_by(retailer_name, yr) |>
+  summarize(claim_number = n()) |>
+  
+  arrange(desc(yr))
+
+lottery_long 
+```
+
+Pivoted the charter wider
+
+```{r}
+lottery_wide <- lottery_long |>
+  pivot_wider(names_from = yr, values_from = claim_number)
+
+lottery_wide
+```
+
+```{r}
+# ggplot(lottery_long,
+    #aes(x = yr, y = claim_number)) +
+    #geom_point() +
+    #geom_line(aes(color = retailer_name))
+```
+
+Keeping this here for reference. Trying to chart on here obviously crashed my computer... but I thought I'd try anyways to see trends in data. I'll export to datawrapper and then narrow down important years or locations for final chart. I'm curious to know what sites have high rates sold and if it's changed over the years, especially for confirmed courier service sites. 
+
+## Narrowing wide table
+
+Created this to see potential trends to keep an eye out for. I featured some of the current high grossers, one of which (Winner's Corner) is subject to investigations due to its involvement in courier services. 
+
+```{r}
+lottery_narrow <- lottery_long |>
+  filter(retailer_name == "WINNERS CORNER TX LLC" | retailer_name == "COLONIES FOOD MART" | retailer_name == "ZEKE'S PUEBLO MEXICANO INC") |>
+  pivot_wider(names_from = yr, values_from = claim_number)
+
+lottery_narrow
+```
+
+## Who has won the most lotteries?
+
+Who are the people behind most of the lottery wins? Breaking it down by claim number first due to it being a unique ID, while names can repeat. 
+
+```{r}
+largest_winner_lottery <- cleaned_lottery |>
+  group_by(claim_number, first_name, last_name) |>
+  summarize(total_won = sum(amount_won)) |>
+  arrange(desc(total_won))
+
+largest_winner_lottery
+```
+
+Data Takeaway:Many of the wins listed are not names, but rather trusts. These are set up to secure anonymity for the winners, and better manage the financial assets. 
 
 
 

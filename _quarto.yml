@@ -5,7 +5,7 @@ project:
   - "*.qmd"
 
 website:
-  title: "Billboard Hot 100"
+  title: "Lottery Analysis"
   sidebar:
     contents:
       - href: index.qmd

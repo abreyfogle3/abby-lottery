@@ -41,7 +41,7 @@ Getting rid of columns that do not add to the data
 
 ```{r}
 lottery_select <- lottery_raw |>
-  select(!c(row_id, date_of_draw, draw_time_of_day, prize_level, date_ticket_sold, annuity_indicator, us_citizen_flag, prize_or_merchandise_indicator, scratch_ticket_or_draw_game)) |>
+  select(!c(row_id)) |>
   glimpse()
 ```
 
@@ -53,7 +53,6 @@ lottery_date <- lottery_select |>
   mutate(
     claim_date = mdy(date_claim_paid)
   ) |>
-  arrange(claim_date) |>
   select(!c(date_claim_paid)) |>
 glimpse()
 ```
@@ -61,7 +60,7 @@ glimpse()
 ## Creating a year element
 
 ```{r}
-lottery_date |>
+lottery_year <- lottery_date |>
   mutate(
     yr = year(claim_date)
   )
@@ -71,7 +70,7 @@ lottery_date |>
 Subtracting the amount spent on the ticket from the amount won
 
 ```{r}
-lottery_net_cost <- lottery_date |>
+lottery_net_cost <- lottery_year |>
   mutate(
     net_cost = scratch_ticket_cost - amount_won
   ) |>
@@ -82,7 +81,7 @@ glimpse()
 Moving to processed folder
 
 ```{r}
-lottery_net_cost |>
+cleaned_lottery <- lottery_net_cost |>
    write_rds("data-processed/01-lottery.rds")
 ```
 
