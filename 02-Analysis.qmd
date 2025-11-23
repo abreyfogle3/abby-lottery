@@ -26,7 +26,6 @@ library(tidyverse)
 library(janitor)
 ```
 
-
 ##Importing clean data
 
 ```{r}
@@ -65,7 +64,7 @@ location_lottery <- cleaned_lottery |>
 location_lottery |> head()
 ```
 
-- Which retailer has the highest amount of money won?
+## Which retailer has the highest amount of money won?
     Breaking it down further by showing the biggest wins by retailer. Again, largest retailer city shown as NA due to large sums often being reported anonyomously or poor recording keeping. 
 
 ```{r}
@@ -77,7 +76,7 @@ retailer_lottery <- cleaned_lottery |>
 retailer_lottery |> head()
 ```
 
-- Which retailer has sold the most winning tickets?
+## Which retailer has sold the most winning tickets?
       Breaking down how it is shown through claim numbers, rather than pure amount won. This allows for large wins to not just be highlighted but shows how often a spot has wins.
 
 ```{r}
@@ -137,6 +136,13 @@ lottery_narrow <- lottery_long |>
 lottery_narrow
 ```
 
+```{r}
+ggplot(lottery_narrow,
+    aes(x = yr, y = claim_number)) +
+    geom_point(aes(color = retailer_name)) +
+    geom_line(aes(color = retailer_name))
+```
+
 ## Who has won the most lotteries?
 
 Who are the people behind most of the lottery wins? Breaking it down by claim number first due to it being a unique ID, while names can repeat. 
@@ -150,7 +156,147 @@ largest_winner_lottery <- cleaned_lottery |>
 largest_winner_lottery
 ```
 
-Data Takeaway:Many of the wins listed are not names, but rather trusts. These are set up to secure anonymity for the winners, and better manage the financial assets. 
+Data Takeaway: Many of the wins listed are not names, but rather trusts. These are set up to secure anonymity for the winners, and better manage the financial assets. 
+
+## How many people who have won are from out of state? 
+
+```{r}
+retailer_out_of_state <- cleaned_lottery |>
+  count(claimant_state, sort = TRUE, name = "# of Wins") 
+
+retailer_out_of_state
+```
+
+Data Takeaway: The most wins of the Texas Lottery by out of state winners belongs to Oklahoma, followed by Arkansas and Louisana. 
+
+## How many people who have won are from out of state? 
+
+```{r}
+retailer_out_of_country <- cleaned_lottery |>
+  count(claimant_country, sort = TRUE, name = "# of Wins")
+
+retailer_out_of_country
+```
+
+Data Takeaway: Most winners of the Texas Lottery are from the United States. Behind the US is Mexico and Canada. Many of the countries listed are a part of the United States, such as Puerto Rico and American Samoa. 
+
+## How many people have won anonymously?
+
+```{r}
+anonymous_wins <- cleaned_lottery |>
+  count(anonymous_indicator)
+
+anonymous_wins
+```
+
+Only 774 wins were declared anonoymous. Anonymous wins were legalized in 2017 by the 85th regular legislative session. It allows winners of $1 million or more to remain anonymous, but still requires them to provide identification in the claiming process.
+
+## Low-Level vs. High-Level
+
+Wins is a very broad distinction. How many low-level wins (10 dollars) vs high-level wins (1,000,000 dollars)?
+
+Separating wins over a million from other wins. 
+
+```{r}
+levels_wins <- cleaned_lottery |> 
+  mutate(over_mil = if_else(amount_won > 1000000, "True", "False"))
+```
 
 
+```{r}
+lottery_over_mil <- levels_wins |>
+  tabyl(over_mil, name = "Wins")
+
+lottery_over_mil
+```
+
+Plot it
+
+```{r}
+lottery_over_mil_plot <- levels_wins |>
+  count(over_mil, name = "Wins")
+```
+
+
+```{r}
+library(scales)
+
+ggplot(lottery_over_mil_plot,
+       aes(x = over_mil, y = Wins)
+      ) +
+      geom_col() +
+    scale_y_continuous(labels = label_comma())
+```
+
+I attempted to plot it before realizing that the the difference was so significant that it didn't appear. 
+
+Only .0003% of winners won over $1,000,000.
+
+## Lower-Level vs Low-Level
+
+Checking on the difference between lower-level wins (anything over $100) and others. I previously checked to see how many people actually win over 1 million, but now I'm wondering how many people have won a smaller sum of money. 
+
+```{r}
+levels_low_wins <- cleaned_lottery |> 
+  mutate(under_hundred = if_else(amount_won <= 100, "True", "False")) 
+```
+
+
+```{r}
+lottery_low <- levels_low_wins |>
+  tabyl(under_hundred, name = "Wins")
+
+lottery_low
+```
+
+Plot It
+
+```{r}
+lottery_under_hundred_plot <- levels_low_wins |>
+  count(under_hundred, name = "Wins")
+```
+
+
+```{r}
+ggplot(lottery_under_hundred_plot,
+       aes(x = under_hundred, y = Wins)
+      ) +
+      geom_col() +
+    scale_y_continuous(labels = label_comma())
+```
+
+Data Takeaways: Nearly 39% of wins are under $100. 
+
+## Ongoing: Winning Numbers
+
+```{r}
+lottery_numbers <- cleaned_lottery |>
+  select(claim_number, scratch_ticket_game_number) |>
+  arrange(claim_number)
+
+lottery_numbers
+
+lottery_win_numbers <- lottery_numbers |>
+
+  pivot_wider(names_from = claim_number, values_from = scratch_ticket_game_number)
+
+lottery_win_numbers
+```
+
+Ongoing attempt at finding cases of one person (one claim number) buying each instance of scratch ticket numbers. However, I don't think there is enough consistent recording of the numbers to include. Currently, results show each recorded win number. 
+
+## Rook TX
+
+I read this Houston Chronicle Article regarding Rook TX which is buying up large amounts of lottery tickets to increase their chances. I wanted to see just how many they bought. Still looking into this.
+
+https://www.houstonchronicle.com/politics/texas/article/texas-lottery-jackpot-details-emerge-21114267.php
+
+```{r}
+lottery_rook <- cleaned_lottery |>
+  
+  select(last_name, claimant_name_and_player_id, claim_number, amount_won) |>
+  filter(str_detect(last_name, "ROOK TX"))
+
+lottery_rook
+```
 
