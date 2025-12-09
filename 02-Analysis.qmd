@@ -24,6 +24,9 @@ Setting up the packages -- tidyverse and janitor.
 
 library(tidyverse)
 library(janitor)
+library(scales)
+library(ggthemes)
+library(plotly)
 ```
 
 ##Importing clean data
@@ -37,7 +40,7 @@ glimpse()
 ## of Winners
 
 ```{r}
-cleaned_lottery |>
+winners_count <- cleaned_lottery |>
   count(player_id, sort = TRUE, name = "wins")
 ```
 
@@ -149,7 +152,7 @@ Who are the people behind most of the lottery wins? Breaking it down by claim nu
 
 ```{r}
 largest_winner_lottery <- cleaned_lottery |>
-  group_by(claim_number, first_name, last_name) |>
+  group_by(claim_number, first_name, last_name, claim_type) |>
   summarize(total_won = sum(amount_won)) |>
   arrange(desc(total_won))
 
@@ -157,6 +160,16 @@ largest_winner_lottery
 ```
 
 Data Takeaway: Many of the wins listed are not names, but rather trusts. These are set up to secure anonymity for the winners, and better manage the financial assets. 
+
+## Legal Entities
+
+```{r}
+legal_entities <- cleaned_lottery |>
+  count(claim_type == "Entity")
+
+legal_entities
+```
+
 
 ## How many people who have won are from out of state? 
 
@@ -167,7 +180,7 @@ retailer_out_of_state <- cleaned_lottery |>
 retailer_out_of_state
 ```
 
-Data Takeaway: The most wins of the Texas Lottery by out of state winners belongs to Oklahoma, followed by Arkansas and Louisana. 
+Data Takeaway: The most wins of the Texas Lottery by out of state winners belongs to Oklahoma, followed by Arkansas and Louisiana. 
 
 ## How many people who have won are from out of state? 
 
@@ -189,7 +202,7 @@ anonymous_wins <- cleaned_lottery |>
 anonymous_wins
 ```
 
-Only 774 wins were declared anonoymous. Anonymous wins were legalized in 2017 by the 85th regular legislative session. It allows winners of $1 million or more to remain anonymous, but still requires them to provide identification in the claiming process.
+Only 774 wins were declared anonymous. Anonymous wins were legalized in 2017 by the 85th regular legislative session. It allows winners of $1 million or more to remain anonymous, but still requires them to provide identification in the claiming process.
 
 ## Low-Level vs. High-Level
 
@@ -199,54 +212,48 @@ Separating wins over a million from other wins.
 
 ```{r}
 levels_wins <- cleaned_lottery |> 
-  mutate(over_mil = if_else(amount_won > 1000000, "True", "False"))
-```
+  filter(
+    claim_date < "2025-01-01") |>
+    mutate(
+      year = floor_date(claim_date, unit = "year"),
+      win_level = if_else(amount_won > 1000000, "ABOVE", "BELOW")) |>
+    group_by(year, win_level) |>
+    summarize(total_amount = sum(amount_won)) |>
+    mutate(percentage_wins = (total_amount / sum(total_amount)))
 
-
-```{r}
-lottery_over_mil <- levels_wins |>
-  tabyl(over_mil, name = "Wins")
-
-lottery_over_mil
+levels_wins
 ```
 
 Plot it
 
 ```{r}
-lottery_over_mil_plot <- levels_wins |>
-  count(over_mil, name = "Wins")
-```
+levels_wins |> 
+  ggplot(aes(x = year, y = percentage_wins, fill = win_level)) +
+  geom_col() +
+  scale_y_continuous(labels = label_percent()) +
+  scale_x_date(minor_breaks = breaks_width("1 year")) +
+  labs(
+    title = "Trend of Smaller Lottery Wins Broken Over the Past Two Years", 
+    subtitle = str_wrap("Lottery wins under 1 million dollars have been on the rise since the Texas Lottery was created in 1992. It came to a height in 2022 with 68% of winners winning less than a million dollars. However, 2023 and 2024 saw a drop to 49% and 39% respectively."),
+    x = "Year", y = "Percentage", 
+    caption = "Source: Texas Open Data Portal",
+    fill = "Above or Below A Million Dollars"
+  ) + theme_light()
 
-
-```{r}
-library(scales)
-
-ggplot(lottery_over_mil_plot,
-       aes(x = over_mil, y = Wins)
-      ) +
-      geom_col() +
-    scale_y_continuous(labels = label_comma())
+ggsave("figures/level_wins.png")
 ```
 
 I attempted to plot it before realizing that the the difference was so significant that it didn't appear. 
 
 Only .0003% of winners won over $1,000,000.
 
-## Lower-Level vs Low-Level
+## ABANDONED: Lower-Level vs Low-Level
 
 Checking on the difference between lower-level wins (anything over $100) and others. I previously checked to see how many people actually win over 1 million, but now I'm wondering how many people have won a smaller sum of money. 
 
 ```{r}
 levels_low_wins <- cleaned_lottery |> 
   mutate(under_hundred = if_else(amount_won <= 100, "True", "False")) 
-```
-
-
-```{r}
-lottery_low <- levels_low_wins |>
-  tabyl(under_hundred, name = "Wins")
-
-lottery_low
 ```
 
 Plot It
@@ -267,7 +274,7 @@ ggplot(lottery_under_hundred_plot,
 
 Data Takeaways: Nearly 39% of wins are under $100. 
 
-## Ongoing: Winning Numbers
+## ABANDONED: Winning Numbers
 
 ```{r}
 lottery_numbers <- cleaned_lottery |>
@@ -285,7 +292,7 @@ lottery_win_numbers
 
 Ongoing attempt at finding cases of one person (one claim number) buying each instance of scratch ticket numbers. However, I don't think there is enough consistent recording of the numbers to include. Currently, results show each recorded win number. 
 
-## Rook TX
+## ABANDONED: Rook TX
 
 I read this Houston Chronicle Article regarding Rook TX which is buying up large amounts of lottery tickets to increase their chances. I wanted to see just how many they bought. Still looking into this.
 
@@ -299,4 +306,60 @@ lottery_rook <- cleaned_lottery |>
 
 lottery_rook
 ```
+
+## ABANDONED: Side Quest
+
+```{r}
+lottery_beast <- cleaned_lottery |>
+  
+  select(last_name, claimant_name_and_player_id, claim_number, amount_won, claim_type, claim_date) |>
+  filter(str_detect(last_name, "MRBEAST"))
+
+lottery_beast
+```
+
+Came across this. Couldn't find any record with the state abt this llc. I think its an LLC based in NC. Ignoring this for now, especially since it's from a few years ago.  
+
+## Total payouts by year
+
+```{r}
+yearly_payouts <- cleaned_lottery |>
+  
+  filter(
+    claim_date < "2025-01-01"
+  ) |>
+  group_by(year = floor_date(claim_date, unit = "year")) |>
+  summarize(yearly_total = sum(amount_won))
+  
+yearly_payouts
+```
+
+```{r}
+yearly_payouts |>
+  summarize(yearly_average = mean(yearly_total))
+```
+
+## Plot the chart
+
+```{r}
+payouts_plot <- ggplot(yearly_payouts, aes(x = year, y = yearly_total)) +
+  geom_col() +
+  
+  scale_y_continuous(labels = label_dollar(scale_cut = cut_long_scale())) + 
+  scale_x_date(minor_breaks = breaks_width("1 year")) +
+  labs(
+    title = "Since 2022, lottery payouts have nearly doubled.", 
+    subtitle = str_wrap("Since the lottery was created in 1992, the total yearly payout remained largely similar until recently. In 2024, the most recent recorded year, more than 870 million dollars were won, nearly doubling the total from 2022. Throughout the years, the average wins would be around 425 million."),
+    x = "Year", y = "Total Payout", 
+    caption = "Source: Texas Open Data Portal"
+  ) + theme_light()
+
+payouts_plot |> ggplotly()
+
+ggsave("figures/payouts_plot.png")
+```
+
+![](figures/payouts_plot.png)
+
+
 

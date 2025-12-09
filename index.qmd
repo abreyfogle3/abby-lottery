@@ -3,9 +3,29 @@ title: "index"
 format: html
 ---
 
+## Summary
+
 This project is an assignment in the Reporting with Data class at the University of Texas at Austin. 
 
-The data was retrived from the Texas Open Data Portal (https://data.texas.gov/See-Category-Tile/Winners-List-of-Texas-Lottery-Prizes/54pj-3dxy/about_data) regarding the Winners List of Texas Lottery® Prizes. The data was provided by IT Lottery & Charitable Bingo, Texas Department of Licensing & Regulation. The data begins on November 16th, 1992 and was updated weekly The data was last updated November 4, 2025 before it was pulled. 
+In the past two years, Texas Lottery payouts have nearly doubled. Since the lottery was created in 1992, the total yearly payout remained largely similar until recently. Throughout the years, the average wins would be around 425 million. However, in 2024, more than 870 million dollars were won, nearly doubling the total from 2022. 
+
+The data was retrieved from the Texas Open Data Portal (https://data.texas.gov/See-Category-Tile/Winners-List-of-Texas-Lottery-Prizes/54pj-3dxy/about_data) regarding the Winners List of Texas Lottery® Prizes. The data was provided by IT Lottery & Charitable Bingo, Texas Department of Licensing & Regulation. The data begins on November 16th, 1992, and was updated weekly. The data was last updated on November 4, 2025, before it was pulled. 
+
+Some components of data were and were left blank. This caused some background, such as retailer location and date of draw, to have no filed information. However, the amount won and player ID were consistently recorded, leading to more accurate results. In addition, the Texas Lottery faced legal scrutiny, resulting in it being moved to the Department of Licensing and Regulation. The Department said in an emailed statement that “the Texas Lottery’s transition to TDLR did not result in any change to the data set.”
+
+	Data Takeaways: 
+- Locally, many of the wins come from Houston, San Antonio, Sugar Land, Fredericksburg and Austin. A majority of the wins come from people based in Texas, with over 2 million wins. It is followed by Oklahoma with over 64,000, and then Arkansas and Louisiana. In addition, some of the winners come from outside of the United States. Behind the US, there is Mexico with 1,715 wins and Canada with 608. However, some of the countries listed are territories in the United States, such as Puerto Rico and American Samoa. 
+- Only 774 wins were declared anonymous. Anonymous wins were legalized in 2017 by the 85th regular legislative session. It allows winners of $1 million or more to remain anonymous, but still requires them to provide identification in the claiming process.
+- Some wins listed are not names, but rather trusts. There were a total of 1,495 instances of wins being claimed by legal entities rather than individuals. These are set up to secure anonymity for the winners and better manage the financial assets. 
+- There have been 1,078,795 winners since 1992.
+- Lottery wins under 1 million dollars have been on the rise since the Texas Lottery was created in 1992. It came to a height in 2022, with 68% of winners winning less than a million dollars. However, 2023 and 2024 saw a drop to 49% and 39% respectively.
+
+
+## Charts 
+
+![](figures/payouts_plot.png)
+
+![](figures/level_wins.png)
 
 ## Column Names
 
